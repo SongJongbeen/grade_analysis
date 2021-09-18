@@ -13,7 +13,7 @@ def show_menu():
 # ------------------------------------------------
 
 # 모의고사 등록 페이지
-def create_exam():
+def register_exam():
     exam_folder_path = create_exam_folder()
     exam_excel_path = create_exam_excel(exam_folder_path)
     open_exam_excel(exam_excel_path)
@@ -28,17 +28,17 @@ def create_exam_folder():
         try:
             # 폴더 만들고, 폴더의 경로를 return
             os.mkdir(exam_folder_path)
-            return exam_folder_path
         # 오류 나오면 메세지 띄우고 이름 입력부터 다시 시작
         except:
             print('폴더명으로 쓸 수 있는 형식으로 모의고사 이름을 입력해주세요.')
-            create_exam_folder()
+            exam_folder_path = create_exam_folder()
+        finally:
+            return exam_folder_path
     # 오류 나오면 메세지 띄우고 이름 입력부터 다시 시작
     else:
         print('이미 존재하는 모의고사입니다.')
         print('이미 등록하신 모의고사의 정보를 수정하시려면, data 폴더 내에 있는 해당 시험의 엑셀파일에서 직접 수정하고 저장하시고 창을 닫으십시오.')
-        create_exam_folder()
-
+        exam_folder_path = create_exam_folder()
     return exam_folder_path
 
 # 해당 폴더 안에 문제 정보 엑셀 파일 생성
@@ -59,9 +59,12 @@ def create_exam_excel(path):
     write_wb.save(exam_excel_path)
     return exam_excel_path
 
-# 만들어진 문제 정보 엑셀파일을 띄워주는 함수 - 미완
+# 만들어진 문제 정보 엑셀파일을 띄워주는 함수
 def open_exam_excel(exam_excel_path):
-    print(exam_excel_path, '<<< 이 엑셀을 띄워줍니다.')
+    if os.name == 'nt':
+        os.system("start" + exam_excel_path)
+    elif os.name == 'posix':
+        os.system("open" + exam_excel_path)
 
 # ------------------------------------------------
 # ------------------------------------------------
@@ -101,9 +104,12 @@ def create_grade_excel(grade_exam_path):
     write_wb.save(grade_excel_path)
     return grade_excel_path
 
-# 만들어진 제출답안 엑셀파일을 띄워주는 함수 - 미완
+# 만들어진 제출답안 엑셀파일을 띄워주는 함수
 def open_grade_excel(grade_excel_path):
-    print(grade_excel_path, '<<< 이 엑셀을 띄워줍니다.')
+    if os.name == 'nt':
+        os.system("start" + grade_excel_path)
+    elif os.name == 'posix':
+        os.system("open" + grade_excel_path)
 
 # ------------------------------------------------
 # ------------------------------------------------
@@ -662,37 +668,45 @@ def writeBranchInfo(analysis_exam_path, branch_folder_path, calculated_data_box)
         answers = calculated_data_box[0][0][3]
         for idx2 in range(1,21):
             cell_path = alphabet[idx2+1] + str(4)
-            write_ws[cell_path] = answers[idx-1]
+            write_ws[cell_path] = answers[idx2-1]
 
         # 제출답 넣기
         submission = calculated_data_box[0][idx][4]
         for idx2 in range(1,21):
             cell_path = alphabet[idx2+1] + str(5)
-            write_ws[cell_path] = submission[idx-1]
+            write_ws[cell_path] = submission[idx2-1]
 
         # 정답률 넣기
         correct_answers_percentage = calculated_data_box[1][5]
         for idx2 in range(1,21):
             cell_path = alphabet[idx2+1] + str(6)
-            write_ws[cell_path] = correct_answers_percentage[idx-1]
+            write_ws[cell_path] = correct_answers_percentage[idx2-1]
 
         # 엑셀 파일이 저장될 경로
         branch_info_excel_path = str(branch_folder_path) + '/' + name + '.xlsx'
         # 엑셀 파일 저장 및 경로 return
         write_wb.save(branch_info_excel_path)
 
-# 만들어진 학생정보열람 엑셀파일을 띄워주는 함수 - 미완
+# 만들어진 학생정보열람 엑셀파일을 띄워주는 함수
 def open_students_info_excel(students_info_excel_path):
-    print(students_info_excel_path, '<<< 이 엑셀을 띄워줍니다.')
+    if os.name == 'nt':
+        os.system("start" + students_info_excel_path)
+    elif os.name == 'posix':
+        os.system("open" + students_info_excel_path)
 
-# 만들어진 시험정보열람 엑셀파일을 띄워주는 함수 - 미완
+# 만들어진 시험정보열람 엑셀파일을 띄워주는 함수
 def open_exam_info_excel(exam_info_excel_path):
-    print(exam_info_excel_path, '<<< 이 엑셀을 띄워줍니다.')
+    if os.name == 'nt':
+        os.system("start" + exam_info_excel_path)
+    elif os.name == 'posix':
+        os.system("open" + exam_info_excel_path)
 
-# 만들어진 지점 폴더를 띄워주는 함수 - 미완
+# 만들어진 지점 폴더를 띄워주는 함수
 def open_branch_info_excel(branch_folder_path):
-    print(branch_folder_path, '<<< 해당 지점의 폴더를 띄워줍니다.')
-
+    if os.name == 'nt':
+        os.system("start" + branch_folder_path)
+    elif os.name == 'posix':
+        os.system("open" + branch_folder_path)
 
 # ------------------------------------------------
 # ------------------------------------------------
@@ -700,7 +714,7 @@ def open_branch_info_excel(branch_folder_path):
 
 cmd = show_menu()
 if cmd == '1':
-    create_exam()
+    register_exam()
 elif cmd == '2':
     grade_exam()
 elif cmd == '3':
