@@ -15,10 +15,11 @@ class Exam:
 
         self.set_students_number()
         self.set_students_total_score()
-        self.set_grade_cut_lines()
         self.set_sort_students_by_score()
+        self.set_grade_cut_lines()
         self.set_student_ranks()
         self.set_student_grades()
+
 
     # 학생 수 받아오기
     def set_students_number(self):
@@ -26,13 +27,13 @@ class Exam:
 
     # 총점 구하기
     def set_students_total_score(self):
-        self.students_total_score = sum([student.score for student in self.students.keys()])
+        self.students_total_score = sum([student.score for student in self.students.values()])
 
     # 등급 커트라인에 해당하는 점수 set.
     def set_grade_cut_lines(self):
         for proportion in self.grade_cut_lines_proportion:
             student_rank = int(self.students_number * proportion)
-            self.grade_cut_line_scores.append(self.sorted_students_by_score[student_rank])
+            self.grade_cut_line_scores.append(self.sorted_students_by_score[student_rank].score)
 
     def set_sort_students_by_score(self):
         self.sorted_students_by_score = sorted(self.students.values(), key=lambda student: -student.score)
@@ -42,7 +43,7 @@ class Exam:
             print("학생들이 정렬되지 않았습니다!")
 
         for rank, student in enumerate(self.sorted_students_by_score):
-            self.students[student.__hash__()] = rank + 1
+            self.students[student.__hash__()].rank = rank + 1
 
     def set_student_grades(self):
         proportion_idx = 0
@@ -75,27 +76,9 @@ class Exam:
 
         return correct_ratio
 
-    # 학생 별 점수 구하기
-    def student_with_score(self):
-        return {key: self.students[key].score for key in self.students.keys()}
-
     # 소수 넷째 자리에서 반올림된 평균 값 리턴.
     def average_score(self):
         return round(self.students_total_score / self.students_number, 3)
-
-    # 학생별 등수 반환
-    def students_with_rank(self):
-        if not self.sorted_students_by_score:
-            print("학생들이 정렬되지 않았습니다!")
-            return
-        return {student.__hash__(): rank + 1 for rank, student in enumerate(self.sorted_students_by_score)}
-
-    # 등수 별 점수 반환
-    def rank_with_score(self):
-        if not self.sorted_students_by_score:
-            print("학생들이 정렬되지 않았습니다!")
-            return
-        return {rank + 1: student.score for rank, student in enumerate(self.sorted_students_by_score)}
 
     # 각 문항별로 선택된 선지 순위
     def chosen_ratio(self):
@@ -111,7 +94,7 @@ class Exam:
 def change_chosen_answer_counter_to_str(counter, students_number):
     changed_str = ''
     for number in range(1, 6):
-        selected_ratio = round(100 * counter[number] / students_number ,1)
+        selected_ratio = round(100 * counter[str(number)] / students_number ,1)
         changed_str += f'{number}: {selected_ratio}% / '
 
     return changed_str

@@ -1,52 +1,64 @@
-import os
 import re
-from openpyxl import Workbook, load_workbook
+import json
+from openpyxl import load_workbook
 
 from . import Student
 from . import Exam
-from ..Util.File import open_file
-from ..Util.Excel import worksheet_write, create_worksheet
+from ..Util.File import *
+from ..Util.Excel import *
 
 
-# 모의고사 분석 페이지
+# 모의고사 채점/분석 페이지
+# 모의고사의 정답 파일과 학생 제출 파일을 읽어 채점을 진행합니다.
+# 채점된 데이터들을 result.json, /채점결과/시험 정보 열람.xlsx, /채점결과/학생 전체 점수 열람.xlsx 파일에 각각 저장합니다.
+
+
 def analyze_exam():
-    analysis_exam_path = get_analysis_exam_path()
-    exam_answers = exam_answers_from_excel(analysis_exam_path)
-    exam_scores = exam_scores_from_excel(analysis_exam_path)
+    exam_folder = select_exam_folder()
+    exam_data = get_exam_data_from_excel(exam_folder + f'/{exam_folder.lstrip("./data")} 정답 및 배점.xlsx')
+    students = get_students(exam_folder + f'/{exam_folder.lstrip("./data")} 학생 제출 답.xlsx', *exam_data)
 
-    students = get_students(analysis_exam_path + str('/제출답안.xlsx'), exam_answers, exam_scores)
-    exam = Exam.Exam(analysis_exam_path, students, exam_answers, exam_scores)
+    if not exam_data or not students:
+        return
 
-    show_exam_info(exam)
+    exam = Exam.Exam(exam_folder, students, *exam_data)
 
-    print('1. 학생 전체 점수 열람 2. 각 문항별 분석 3. 학생 성적표 열람')
-    cmd = receive_command()
-    run_with_command(analysis_exam_path, cmd, exam)
+    if not os.path.exists(exam_folder + '/채점결과'):
+        os.mkdir(exam_folder + '/채점결과')
+
+    create_excel_problem_analyzed_result(exam_folder+'/채점결과', exam)
+    create_excel_total_students_score_result(exam_folder+'/채점결과', exam)
+    create_json_exam_result(exam_folder, exam)
+    print("채점되었습니다!")
 
 
-# 분석할 모의고사 이름 및 경로 받기
-def get_analysis_exam_path():
-    # 모의고사 목록 출력
-    exam_list = os.listdir('./data')
-    for idx in range(len(exam_list)):
-        print(str(idx + 1) + '.', exam_list[idx])
-    # 채점할 모의고사 이름 받기
-    analysis_exam_idx = input('몇번째 모의고사를 분석/열람하시겠습니까? ')
-    analysis_exam_name = exam_list[int(analysis_exam_idx) - 1]
-    # 해당 모의고사 경로 return
-    analysis_exam_path = './data/' + analysis_exam_name
-    return analysis_exam_path
+def get_exam_data_from_excel(exam_path):
+    exam_answers = exam_answers_from_excel(exam_path)
+    exam_scores = exam_scores_from_excel(exam_path)
+
+    if exam_answers and exam_scores:
+        return exam_answers, exam_scores
+    return False
 
 
 def exam_answers_from_excel(exam_path):
     values = load_workbook(exam_path, data_only=True)['문항 정답 및 배점'].values
     answers = [value[1] for value in values if value and type(value[1]) == int]
+
+    if len(answers) != 20:
+        print("문제 정답 갯수를 다시 확인해 주세요!")
+        return False
     return answers
 
 
 def exam_scores_from_excel(exam_path):
     values = load_workbook(exam_path, data_only=True)['문항 정답 및 배점'].values
     scores = [value[2] for value in values if value and type(value[2]) == int]
+
+    if len(scores) != 20:
+        print("문제 배점 갯수를 다시 확인해 주세요!")
+        return False
+
     return scores
 
 
@@ -55,124 +67,67 @@ def get_students(students_path, exam_answers, exam_scores):
     students = {}
     records = load_workbook(students_path, data_only=True)['제출답안'].values
 
+
+    next(records)
     for name, branch, submission in records:
         if is_valid_student_data(name, branch, submission):
             student = Student.Student(name, branch, submission, exam_answers, exam_scores)
             students[student.__hash__()] = student
+        else:
+            print("학생 제출 답안 엑셀 파일을 다시 확인해 주세요! 잘못된 값이 들어갔습니다.")
+            return False
 
+    if not students:
+        print('학생이 없습니다!')
+        return False
     return students
 
 
 def is_valid_student_data(name, branch, submission):
     if name and branch and submission:
+        # print(name, branch, submission)
         if type(name) == str and type(branch) == str and re.compile('[0-9]{20}').match(submission):
             return True
     return False
 
 
-# 모의고사 정보 보여줌
-def show_exam_info(exam):
-    print(exam.name, f'(응시생: {exam.students_number}명)')  # 시험 이름, 응시생 수
-    print(f'평균 점수: {exam.average_score()}')  # 평균 점수
-    print('오답 1~5순위: ', *exam.frequent5_wrong_answers())  # 오답 1~5 순위
-    print('1~9등급 커트라인')  # 각 등급 커트라인
-    for idx in range(1, 9):
-        print(f'{idx}등급: {exam.grade_cut_line_scores[idx - 1]}점')
-
-
-def receive_command():
-    return input('열람할 자료를 고르세요: ')
-
-
-def run_with_command(analysis_exam_path, cmd, exam):
-    if cmd == '1':
-        file_path = write_excel_total_students_score(analysis_exam_path, exam)
-    elif cmd == '2':
-        file_path = write_excel_exam_analyze(analysis_exam_path, exam)
-    elif cmd == '3':
-        file_path = create_branch_folder(analysis_exam_path)
-        write_student_reports(file_path, exam)
-    else:
-        print('명령 종료')
-        return
-
-    open_file(file_path)
-
-
 # 학생 전체 점수 열람 엑셀 생성
-def write_excel_total_students_score(analysis_exam_path, exam):
-    write_wb = Workbook()
-    write_ws = write_wb.create_sheet('학생 전체 점수표')
+def create_excel_total_students_score_result(exam_path, exam):
+    workbook, worksheet = create_worksheet('학생 전체 점수표')
 
-    worksheet_write(write_ws, 1, '이름', '점수', '등급', '등수')
-
+    worksheet_write(worksheet, 1, '이름', '점수', '등급', '등수')
     for idx, student in enumerate(exam.students.values()):
-        worksheet_write(write_ws, idx + 2, student.name, student.score, student.grade, student.rank)
+        worksheet_write(worksheet, idx + 2, student.name, student.score, student.grade, student.rank)
 
-    # 엑셀 파일 저장
-    students_info_excel_path = str(analysis_exam_path) + '/학생 전체 점수 열람.xlsx'
-    write_wb.save(students_info_excel_path)
-    return students_info_excel_path
+    file_path = save_excel_file(workbook, exam_path, f'{exam.name} 전체 학생 채점 결과')
+    return file_path
 
 
 # 시험 정보 열람 엑셀 생성
-def write_excel_exam_analyze(analysis_exam_path, exam):
-    # 엑셀 시트 활성화
-    write_wb = Workbook()
-    write_ws = write_wb.create_sheet('학생 전체 점수표')
-
-    worksheet_write(write_ws, 1, '문항', '정답', '정답률', '선지선택비율')
+def create_excel_problem_analyzed_result(exam_path, exam):
+    workbook, worksheet = create_worksheet('학생 전체 점수표')
+    worksheet_write(worksheet, 1, '문항', '정답', '정답률', '선지선택비율')
 
     total_correct_ratio = exam.correct_ratio()
     total_chosen_ratio = exam.chosen_ratio()
 
     for column_number in range(2, 22):
         problem_number = column_number - 1
-        worksheet_write(write_ws, column_number,
+        worksheet_write(worksheet, column_number,
                         problem_number,
                         exam.answers[column_number - 2],
                         total_correct_ratio[problem_number],
                         total_chosen_ratio[problem_number]
                         )
 
-    # 엑셀 파일이 저장될 경로
-    exam_info_excel_path = str(analysis_exam_path) + '/시험 정보 열람.xlsx'
-    # 엑셀 파일 저장 및 경로 return
-    write_wb.save(exam_info_excel_path)
-    return exam_info_excel_path
+    return save_excel_file(workbook, exam_path, f'{exam.name} 채점 결과 문항 분석')
 
 
-# 지점의 폴더를 만드는 기능
-def create_branch_folder(analysis_exam_path):
-    branch_name = input('지점명을 입력: ')
-    branch_folder_path = analysis_exam_path + '/' + branch_name
-    if not os.path.exists(branch_folder_path):
-        try:
-            os.mkdir(branch_folder_path)
-        except:
-            print('폴더명으로 쓸 수 있는 형식으로 지점 이름을 입력해주세요.')
-            branch_folder_path = create_branch_folder(analysis_exam_path)
-    else:
-        print('이미 존재하는 지점입니다. \n이미 등록하신 지점의 정보를 수정하시려면, data 폴더 내에 있는 해당 모의고사 폴더 내에 있는 지점 폴더를 삭제하십시오.')
-        create_branch_folder(analysis_exam_path)
+def create_json_exam_result(exam_path, exam):
+    json_path = exam_path + '/result.json'
+    data = {"name": exam.name, "students_number": exam.students_number, "average_score": exam.average_score(),
+            "frequent5_wrong_answers": exam.frequent5_wrong_answers(),
+            "grade_cut_line_scores": exam.grade_cut_line_scores}
 
-    return branch_folder_path
-
-
-def write_student_report(branch_folder_path, student, exam):
-    write_wb, write_ws = create_worksheet('해당 학생 점수표')
-
-    worksheet_write(write_ws, 1, '모의고사 이름', str(exam.name), '학생 이름', student.name, '점수', student.score, '등수',
-                    student.rank, '등급', student.grade)
-    worksheet_write(write_ws, 3, '문항번호', '', *(problem_num for problem_num in range(1, 21)))
-    worksheet_write(write_ws, 4, '정답', '', *exam.answers)
-    worksheet_write(write_ws, 5, '제출답', '', *student.submission)
-    worksheet_write(write_ws, 6, '정답률', '', *exam.correct_ratio())
-
-    branch_info_excel_path = str(branch_folder_path) + '/' + student.name + '.xlsx'
-    write_wb.save(branch_info_excel_path)
-
-
-def write_student_reports(branch_folder_path, exam):
-    for student in exam.students.values():
-        write_student_report(branch_folder_path, student, exam)
+    with open(json_path, 'w') as json_file:
+        json.dump(data, json_file)
