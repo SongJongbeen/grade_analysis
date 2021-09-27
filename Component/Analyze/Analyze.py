@@ -1,5 +1,6 @@
 import re
 import json
+import psutil
 from openpyxl import load_workbook
 
 from . import Student
@@ -93,6 +94,11 @@ def is_valid_student_data(name, branch, submission):
 
 # 학생 전체 점수 열람 엑셀 생성
 def create_excel_total_students_score_result(exam_path, exam):
+
+    for proc in psutil.process_iter():
+        if proc.name() == 'Microsoft Excel':
+            print(proc.name(), proc.pid, proc.threads()) # proc.threads : 에러 남
+
     workbook, worksheet = create_worksheet('학생 전체 점수표')
 
     worksheet_write(worksheet, 1, '이름', '점수', '등급', '등수')
