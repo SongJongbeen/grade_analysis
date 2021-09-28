@@ -30,7 +30,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QListWidget" name="exam_list_analyze_exam">
+   <widget class="QListWidget" name="exam_list_show_exam">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -61,7 +61,7 @@
    <sender>pushButton</sender>
    <signal>clicked()</signal>
    <receiver>show_exam</receiver>
-   <slot>showExam()</slot>
+   <slot>openShowExam2()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>683</x>
@@ -75,6 +75,6 @@
   </connection>
  </connections>
  <slots>
-  <slot>showExam()</slot>
+  <slot>openShowExam2()</slot>
  </slots>
 </ui>

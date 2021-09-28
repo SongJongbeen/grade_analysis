@@ -14,7 +14,7 @@
    <string>손고운 사회문화 채점 및 분석 시스템</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="pushButton_1">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -87,7 +87,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton</sender>
+   <sender>pushButton_1</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>openRegisterExam()</slot>

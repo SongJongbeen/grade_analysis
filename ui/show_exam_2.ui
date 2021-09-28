@@ -40,7 +40,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>80</x>
@@ -65,7 +65,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="pushButton_1">
        <property name="text">
         <string>학생별 성적표 열람</string>
        </property>
@@ -110,7 +110,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton</sender>
+   <sender>pushButton_1</sender>
    <signal>clicked()</signal>
    <receiver>show_exam_2</receiver>
    <slot>showAnalyzedBranches()</slot>
