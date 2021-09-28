@@ -17,9 +17,10 @@ from ..Util.Excel import *
 def analyze_exam():
     exam_folder = select_exam_folder()
     exam_data = get_exam_data_from_excel(exam_folder + f'/{exam_folder.lstrip("./data")} 정답 및 배점.xlsx')
+    if not exam_data:
+        return
     students = get_students(exam_folder + f'/{exam_folder.lstrip("./data")} 학생 제출 답.xlsx', *exam_data)
-
-    if not exam_data or not students:
+    if not students:
         return
 
     exam = Exam.Exam(exam_folder, students, *exam_data)
@@ -47,7 +48,7 @@ def exam_answers_from_excel(exam_path):
     answers = [value[1] for value in values if value and type(value[1]) == int]
 
     if len(answers) != 20:
-        print("문제 정답 갯수를 다시 확인해 주세요!")
+        print("문제 정답 개수를 다시 확인해 주세요!")
         return False
     return answers
 
@@ -57,7 +58,7 @@ def exam_scores_from_excel(exam_path):
     scores = [value[2] for value in values if value and type(value[2]) == int]
 
     if len(scores) != 20:
-        print("문제 배점 갯수를 다시 확인해 주세요!")
+        print("문제 배점 개수를 다시 확인해 주세요!")
         return False
 
     return scores
