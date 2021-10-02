@@ -14,14 +14,14 @@ from ..Util.Excel import *
 # 채점된 데이터들을 result.json, /채점결과/시험 정보 열람.xlsx, /채점결과/학생 전체 점수 열람.xlsx 파일에 각각 저장합니다.
 
 
-def analyze_exam(exam):
-    exam_folder = "./data/" + exam
-    exam_data = get_exam_data_from_excel(exam_folder + f'/{exam_folder.lstrip("./data")} 정답 및 배점.xlsx')
+def analyze_exam():
+    exam_folder = select_exam_folder()
+    exam_data = get_exam_data_from_excel(exam_folder + f'/{exam_folder.replace("./data", "")} 정답 및 배점.xlsx')
     if not exam_data:
-        return
-    students = get_students(exam_folder + f'/{exam_folder.lstrip("./data")} 학생 제출 답.xlsx', *exam_data)
+        return 3
+    students = get_students(exam_folder + f'/{exam_folder.replace("./data", "")} 학생 제출 답.xlsx', *exam_data)
     if not students:
-        return
+        return 4
 
     exam = Exam.Exam(exam_folder, students, *exam_data)
 
@@ -31,7 +31,6 @@ def analyze_exam(exam):
     create_excel_problem_analyzed_result(exam_folder+'/채점결과', exam)
     create_excel_total_students_score_result(exam_folder+'/채점결과', exam)
     create_json_exam_result(exam_folder, exam)
-    return True
 
 
 def get_exam_data_from_excel(exam_path):

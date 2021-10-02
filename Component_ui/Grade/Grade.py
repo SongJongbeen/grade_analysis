@@ -10,18 +10,18 @@ def grade_exam():
     open_file(grade_excel_path)
 
 
-# 채점할 모의고사 이름 및 경로 받기
-def get_grade_exam_path():
-    # 모의고사 목록 출력
-    exam_list = os.listdir('./data')
-    for idx in range(len(exam_list)):
-        print(str(idx+1) + '.', exam_list[idx])
-    # 채점할 모의고사 이름 받기
-    grade_exam_idx = input('몇번째 모의고사를 채점하시겠습니까? ')
-    grade_exam_name = exam_list[int(grade_exam_idx)-1]
-    # 해당 모의고사 경로 return
-    grade_exam_path = './data/' + grade_exam_name
-    return grade_exam_path
+# # 채점할 모의고사 이름 및 경로 받기
+# def get_grade_exam_path():
+#     # 모의고사 목록 출력
+#     exam_list = os.listdir('./data')
+#     for idx in range(len(exam_list)):
+#         print(str(idx+1) + '.', exam_list[idx])
+#     # 채점할 모의고사 이름 받기
+#     grade_exam_idx = input('몇번째 모의고사를 채점하시겠습니까? ')
+#     grade_exam_name = exam_list[int(grade_exam_idx)-1]
+#     # 해당 모의고사 경로 return
+#     grade_exam_path = './data/' + grade_exam_name
+#     return grade_exam_path
 
 
 # 해당 모의고사 폴더 안에 제출답안 엑셀 파일 생성
