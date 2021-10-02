@@ -31,7 +31,7 @@ def analyze_exam(exam):
     create_excel_problem_analyzed_result(exam_folder+'/채점결과', exam)
     create_excel_total_students_score_result(exam_folder+'/채점결과', exam)
     create_json_exam_result(exam_folder, exam)
-    print("채점되었습니다!")
+    return True
 
 
 def get_exam_data_from_excel(exam_path):

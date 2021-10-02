@@ -114,27 +114,41 @@ class MainWindow(QMainWindow):
 
     # Dialog 닫기 이벤트
     def dialog1_close(self):
-        text = self.dialog1.lineedit.text()     # 이 부분 문제 있음.
+        text = self.dialog1.lineedit.text()
         Register.register_exam(text)
         self.dialog1.close()
 
     # Dialog 닫기 이벤트
-    def dialog2_close(self):
-        exam = self.dialog2.item.text()     # 이 부분 문제 있음.
+    def dialog2_close(self, item):
+        exam = item.text()     # 이 부분 문제 있음.
         Register.register_students_submission(exam)
         self.dialog2.close()
 
     # Dialog 닫기 이벤트
-    def dialog3_close(self):
-        exam = self.dialog3.item.text()  # 이 부분 문제 있음.
-        Analyze.analyze_exam(exam)
-        self.dialog3.close()
+    def dialog3_close(self, item):
+        exam = item.text()     # 이 부분 문제 있음.
+        if Analyze.analyze_exam(exam):
+
+
 
     # Dialog 닫기 이벤트
     def dialog4_close(self):
         exam = self.dialog4.item.text()  # 이 부분 문제 있음.
         Show.show_exam(exam)
         self.dialog4.close()
+
+    def dialog5_open(self):
+        # 버튼 추가
+        self.dialog1.btnDialog = QPushButton("확인", self.dialog1)
+        self.dialog1.btnDialog.move(10, 50)
+        self.dialog1.btnDialog.clicked.connect(self.dialog1_close)
+
+        # QDialog 세팅
+        self.dialog1.setWindowTitle('채점 완료 안내')
+        self.dialog1.setWindowModality(Qt.ApplicationModal)
+        self.dialog1.resize(300, 200)
+        self.dialog1.show()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
