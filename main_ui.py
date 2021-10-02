@@ -128,7 +128,8 @@ class MainWindow(QMainWindow):
     def dialog3_close(self, item):
         exam = item.text()     # 이 부분 문제 있음.
         if Analyze.analyze_exam(exam):
-
+            self.dialog5 = QDialog()
+            self.dialog5_open()
 
 
     # Dialog 닫기 이벤트
@@ -138,16 +139,11 @@ class MainWindow(QMainWindow):
         self.dialog4.close()
 
     def dialog5_open(self):
-        # 버튼 추가
-        self.dialog1.btnDialog = QPushButton("확인", self.dialog1)
-        self.dialog1.btnDialog.move(10, 50)
-        self.dialog1.btnDialog.clicked.connect(self.dialog1_close)
 
-        # QDialog 세팅
-        self.dialog1.setWindowTitle('채점 완료 안내')
-        self.dialog1.setWindowModality(Qt.ApplicationModal)
-        self.dialog1.resize(300, 200)
-        self.dialog1.show()
+        QMessageBox.information(self, "채점이 완료되었습니다.", "채점이 완료되었습니다.")
+
+    def dialog5_close(self):
+        self.dialog5.close()
 
 
 if __name__ == '__main__':
