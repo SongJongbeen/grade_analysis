@@ -14,8 +14,8 @@ from ..Util.Excel import *
 # 채점된 데이터들을 result.json, /채점결과/시험 정보 열람.xlsx, /채점결과/학생 전체 점수 열람.xlsx 파일에 각각 저장합니다.
 
 
-def analyze_exam():
-    exam_folder = select_exam_folder()
+def analyze_exam(exam):
+    exam_folder = "./data/" + exam
     exam_data = get_exam_data_from_excel(exam_folder + f'/{exam_folder.replace("./data", "")} 정답 및 배점.xlsx')
     if not exam_data:
         return 3
@@ -47,7 +47,6 @@ def exam_answers_from_excel(exam_path):
     answers = [value[1] for value in values if value and type(value[1]) == int]
 
     if len(answers) != 20:
-        print("문제 정답 개수를 다시 확인해 주세요!")
         return False
     return answers
 
@@ -57,7 +56,6 @@ def exam_scores_from_excel(exam_path):
     scores = [value[2] for value in values if value and type(value[2]) == int]
 
     if len(scores) != 20:
-        print("문제 배점 개수를 다시 확인해 주세요!")
         return False
 
     return scores
@@ -75,18 +73,15 @@ def get_students(students_path, exam_answers, exam_scores):
             student = Student.Student(name, branch, submission, exam_answers, exam_scores)
             students[student.__hash__()] = student
         else:
-            print("학생 제출 답안 엑셀 파일을 다시 확인해 주세요! 잘못된 값이 들어갔습니다.")
             return False
 
     if not students:
-        print('학생이 없습니다!')
         return False
     return students
 
 
 def is_valid_student_data(name, branch, submission):
     if name and branch and submission:
-        # print(name, branch, submission)
         if type(name) == str and type(branch) == str and re.compile('[0-9]{20}').match(submission):
             return True
     return False

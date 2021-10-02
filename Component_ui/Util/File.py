@@ -4,13 +4,10 @@ def create_folder(path, reference_name, text):
     folder_name = path + '/' + text
 
     if os.path.exists(folder_name):
-        # print('이미 존재하는 폴더입니다.')
         return 1
     try:
         os.mkdir(folder_name)
     except:
-        # print('폴더명으로 쓸 수 있는 형식으로 입력해 주세요.')
-        # folder_name = create_folder(path, reference_name)
         return 2
     return folder_name
 
@@ -31,7 +28,6 @@ def select_exam_folder():
 
 
 def open_file(path):
-    print(path)
     if os.name == 'nt':
         os.system(f'start excel "{path}"')
     elif os.name == 'posix':
