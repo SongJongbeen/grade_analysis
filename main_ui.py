@@ -170,10 +170,10 @@ class MainWindow(QMainWindow):
         QMessageBox.warning(self, '모의고사 이름 오류', '폴더명으로 쓸 수 있는 형식으로 입력해주세요.')
 
     def error_not_register_exam(self):
-        QMessageBox.warning(self, '채점 오류', '시험지 등록을 먼저 진행해주세요.')
+        QMessageBox.warning(self, '채점 오류', '시험지가 정상적으로 등록되어있는지 확인해주세요.')
 
     def error_not_register_student_submission(self):
-        QMessageBox.warning(self, '채점 오류', '학생 제출 답안 등록을 먼저 진행해주세요.')
+        QMessageBox.warning(self, '채점 오류', '학생 제출 답안이 정상적으로 등록되어있는지 확인해주세요.')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
