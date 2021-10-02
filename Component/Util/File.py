@@ -13,16 +13,6 @@ def create_folder(path, reference_name):
         folder_name = create_folder(path, reference_name)
     return folder_name
 
-def create_folders(path, folder_name):
-    if os.path.exists(folder_name):
-        print('이미 존재하는 폴더입니다.')
-        return False
-    try:
-        os.mkdir(folder_name)
-    except:
-        print('폴더명으로 쓸 수 있는 형식으로 입력해 주세요.')
-    return folder_name
-
 
 def select_exam_folder():
     path = './data'

@@ -1,4 +1,4 @@
-from collections import Counter,defaultdict
+from collections import Counter
 
 
 class Exam:
@@ -12,7 +12,6 @@ class Exam:
         self.students_total_score = 0
         self.grade_cut_line_scores = []
         self.grade_cut_lines_proportion = [0.04, 0.11, 0.23, 0.40, 0.60, 0.77, 0.89, 0.96]
-        self.branches = defaultdict(list)
 
         self.set_students_number()
         self.set_students_total_score()
@@ -20,7 +19,7 @@ class Exam:
         self.set_grade_cut_lines()
         self.set_student_ranks()
         self.set_student_grades()
-        self.set_branches()
+
 
     # 학생 수 받아오기
     def set_students_number(self):
@@ -52,10 +51,6 @@ class Exam:
             self.students[student.__hash__()].grade = proportion_idx + 1
             if student.score < self.grade_cut_line_scores[proportion_idx]:
                 proportion_idx += 1
-
-    def set_branches(self):
-        for student_id, student_info in self.students.items():
-            self.branches[student_info.branch].append(student_id)
 
     # 틀린 답안 리스트 만들기 (전체 학생)
     def total_students_wrong_answers(self):

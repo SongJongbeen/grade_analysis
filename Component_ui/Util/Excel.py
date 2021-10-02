@@ -1,5 +1,5 @@
 from openpyxl import Workbook
-
+import os
 
 def create_worksheet(worksheet_name):
     wb = Workbook()
@@ -9,6 +9,9 @@ def create_worksheet(worksheet_name):
 
 def save_excel_file(workbook, folder_path, file_name):
     excel_file_name = str(folder_path) + '/' + file_name + '.xlsx'
+
+    if os.path.exists(str(folder_path) + '/~$' + file_name + '.xlsx'):
+        return 6
     workbook.save(excel_file_name)
     return excel_file_name
 
