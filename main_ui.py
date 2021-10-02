@@ -115,36 +115,65 @@ class MainWindow(QMainWindow):
     # Dialog 닫기 이벤트
     def dialog1_close(self):
         text = self.dialog1.lineedit.text()
-        Register.register_exam(text)
+        if text == '':
+            self.error_no_input()
+        else:
+            registered_exam = Register.register_exam(text)
+            if registered_exam == 1:
+                self.error_existing_folder()
+            elif registered_exam == 2:
+                self.error_foler_name()
+            else:
+                pass
         self.dialog1.close()
 
     # Dialog 닫기 이벤트
     def dialog2_close(self, item):
-        exam = item.text()     # 이 부분 문제 있음.
+        exam = item.text()
         Register.register_students_submission(exam)
         self.dialog2.close()
 
     # Dialog 닫기 이벤트
     def dialog3_close(self, item):
-        exam = item.text()     # 이 부분 문제 있음.
-        if Analyze.analyze_exam(exam):
+        exam = item.text()
+        analyzed_exam = Analyze.analyze_exam(exam)
+        if analyzed_exam == 3:
+            self.error_not_register_exam()
+        elif analyzed_exam == 4:
+            self.error_not_register_student_submission()
+        elif analyzed_exam:
             self.dialog5 = QDialog()
             self.dialog5_open()
 
 
     # Dialog 닫기 이벤트
     def dialog4_close(self):
-        exam = self.dialog4.item.text()  # 이 부분 문제 있음.
+        exam = self.dialog4.item.text()
         Show.show_exam(exam)
         self.dialog4.close()
 
     def dialog5_open(self):
-
         QMessageBox.information(self, "채점이 완료되었습니다.", "채점이 완료되었습니다.")
 
     def dialog5_close(self):
         self.dialog5.close()
 
+
+    # 오류 창 띄우기
+    def error_no_input(self):
+        QMessageBox.warning(self, '모의고사 이름 오류', '모의고사 이름을 입력하지 않으셨습니다.')
+
+    def error_existing_folder(self):
+        QMessageBox.warning(self, '중복되는 모의고사', '이미 존재하는 모의고사입니다. 수정하시려면 data 폴더 > 정답 및 배점에서 수정해주세요.')
+
+    def error_foler_name(self):
+        QMessageBox.warning(self, '모의고사 이름 오류', '폴더명으로 쓸 수 있는 형식으로 입력해주세요.')
+
+    def error_not_register_exam(self):
+        QMessageBox.warning(self, '채점 오류', '시험지 등록을 먼저 진행해주세요.')
+
+    def error_not_register_student_submission(self):
+        QMessageBox.warning(self, '채점 오류', '학생 제출 답안 등록을 먼저 진행해주세요.')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
