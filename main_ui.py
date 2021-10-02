@@ -87,30 +87,30 @@ class MainWindow(QMainWindow):
         self.setLayout(vbox)
 
         # QDialog 세팅
-        self.dialog3.setWindowTitle('제출답안 등록')
+        self.dialog3.setWindowTitle('모의고사 채점')
         self.dialog3.setLayout(vbox)
         self.dialog3.setWindowModality(Qt.ApplicationModal)
         self.dialog3.setGeometry(300, 300, 350, 250)
         self.dialog3.show()
 
     def dialog4_open(self):
-        # 채점할 모의고사 고르기
+        # 열람할 모의고사 고르기
         vbox = QVBoxLayout(self)
         listWidget = QListWidget()
         item_list = File.select_exam_folder()
         for i in item_list:
             listWidget.addItem(i)
-        listWidget.itemDoubleClicked.connect(self.dialog3_close)
+        listWidget.itemDoubleClicked.connect(self.dialog4_close)
 
         vbox.addWidget(listWidget)
         self.setLayout(vbox)
 
         # QDialog 세팅
-        self.dialog3.setWindowTitle('제출답안 등록')
-        self.dialog3.setLayout(vbox)
-        self.dialog3.setWindowModality(Qt.ApplicationModal)
-        self.dialog3.setGeometry(300, 300, 350, 250)
-        self.dialog3.show()
+        self.dialog4.setWindowTitle('모의고사 열람')
+        self.dialog4.setLayout(vbox)
+        self.dialog4.setWindowModality(Qt.ApplicationModal)
+        self.dialog4.setGeometry(300, 300, 350, 250)
+        self.dialog4.show()
 
     # Dialog 닫기 이벤트
     def dialog1_close(self):
@@ -147,9 +147,11 @@ class MainWindow(QMainWindow):
 
 
     # Dialog 닫기 이벤트
-    def dialog4_close(self):
-        exam = self.dialog4.item.text()
-        Show.show_exam(exam)
+    def dialog4_close(self, item):
+        exam = item.text()
+        showed_exam = Show.show_exam(exam)
+        if showed_exam == 5:
+            self.error_not_analyzed()
         self.dialog4.close()
 
     def dialog5_open(self):
@@ -170,10 +172,13 @@ class MainWindow(QMainWindow):
         QMessageBox.warning(self, '모의고사 이름 오류', '폴더명으로 쓸 수 있는 형식으로 입력해주세요.')
 
     def error_not_register_exam(self):
-        QMessageBox.warning(self, '채점 오류', '시험지가 정상적으로 등록되어있는지 확인해주세요.')
+        QMessageBox.warning(self, '채점 오류', '시험지가 정상적으로 등록되어있는지 확인해주세요.\n다음의 원인이 있을 수 있습니다.\n1.문제의 개수(20개)\n2.배점의 개수(20개)')
 
     def error_not_register_student_submission(self):
-        QMessageBox.warning(self, '채점 오류', '학생 제출 답안이 정상적으로 등록되어있는지 확인해주세요.')
+        QMessageBox.warning(self, '채점 오류', '학생 제출 답안이 정상적으로 등록되어있는지 확인해주세요.\n다음의 원인이 있을 수 있습니다.\n1.학생이 없음\n2.잘못된 값이 들어감.')
+
+    def error_not_anlayzed(self):
+        QMessageBox.warning(self, '분석 열람 오류', '해당 모의고사에 대한 채점을 먼저 진행해주세요.')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
