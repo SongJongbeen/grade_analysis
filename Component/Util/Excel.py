@@ -3,7 +3,8 @@ from openpyxl import Workbook
 
 def create_worksheet(worksheet_name):
     wb = Workbook()
-    ws = wb.create_sheet(worksheet_name)
+    ws = wb.active
+    ws.title = worksheet_name
     return wb, ws
 
 

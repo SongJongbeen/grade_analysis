@@ -1,0 +1,1 @@
+([('채점분석', '/Users/isanghun/grade_analysis/dist/채점분석', 'EXECUTABLE')],)

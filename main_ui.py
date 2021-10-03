@@ -19,47 +19,48 @@ class MainWindow(QMainWindow):
         # QButton 위젯 생성
         self.button1 = QPushButton('시험지 등록', self)
         self.button1.clicked.connect(self.dialog1_open)
-        self.button1.setGeometry(10, 10, 200, 50)
+        self.button1.setGeometry(100, 30, 200, 50)
 
         self.button2 = QPushButton('제출 답안 등록', self)
         self.button2.clicked.connect(self.dialog2_open)
-        self.button2.setGeometry(10, 70, 200, 50)
+        self.button2.setGeometry(100, 90, 200, 50)
 
         self.button3 = QPushButton('채점', self)
         self.button3.clicked.connect(self.dialog3_open)
-        self.button3.setGeometry(10, 130, 200, 50)
+        self.button3.setGeometry(100, 150, 200, 50)
 
         self.button4 = QPushButton('채점 및 분석 결과 열람', self)
         self.button4.clicked.connect(self.dialog4_open)
-        self.button4.setGeometry(10, 190, 200, 50)
+        self.button4.setGeometry(100, 210, 200, 50)
 
         self.myexam = ''
 
         # QDialog 설정
-        self.dialog1 = QDialog()
-        self.dialog2 = QDialog()
-        self.dialog3 = QDialog()
-        self.dialog4 = QDialog()
 
     # 버튼 이벤트 함수
     def dialog1_open(self):
         # 모의고사 이름 입력칸
+        self.dialog1 = QDialog()
+
         self.dialog1.lineedit = QLineEdit(self.dialog1)
-        self.dialog1.lineedit.move(10, 10)
+        self.dialog1.lineedit.resize(150, 23)
+        self.dialog1.lineedit.move(75, 60)
 
         # 버튼 추가
         self.dialog1.btnDialog = QPushButton("등록하기", self.dialog1)
-        self.dialog1.btnDialog.move(10, 50)
+        self.dialog1.btnDialog.move(113, 140)
         self.dialog1.btnDialog.clicked.connect(self.dialog1_close)
 
         # QDialog 세팅
         self.dialog1.setWindowTitle('시험지 등록')
         self.dialog1.setWindowModality(Qt.ApplicationModal)
-        self.dialog1.resize(300, 200)
+        self.dialog1.resize(301, 200)
         self.dialog1.show()
 
     def dialog2_open(self):
         # 답안 등록할 모의고사 고르기
+        self.dialog2 = QDialog()
+
         vbox = QVBoxLayout(self)
         listWidget = QListWidget()
         item_list = File.select_exam_folder()
@@ -79,6 +80,8 @@ class MainWindow(QMainWindow):
 
     def dialog3_open(self):
         # 채점할 모의고사 고르기
+        self.dialog3 = QDialog()
+
         vbox = QVBoxLayout(self)
         listWidget = QListWidget()
         item_list = File.select_exam_folder()
@@ -98,6 +101,8 @@ class MainWindow(QMainWindow):
 
     def dialog4_open(self):
         # 열람할 모의고사 고르기
+        self.dialog4 = QDialog()
+
         vbox = QVBoxLayout(self)
         listWidget = QListWidget()
         item_list = File.select_exam_folder()
@@ -181,37 +186,37 @@ class MainWindow(QMainWindow):
 
         # 버튼 추가
         btnDialog1 = QPushButton("시험 문제 분석 엑셀보기", self.dialog6)
-        btnDialog1.move(10, 230)
-        btnDialog1.resize(120, 32)
+        btnDialog1.move(75, 320)
+        btnDialog1.resize(150, 32)
         btnDialog1.clicked.connect(self.dialog6_close1)
         # 버튼 추가
         btnDialog2 = QPushButton("학생 전체 분석 엑셀보기", self.dialog6)
-        btnDialog2.move(10, 270)
-        btnDialog2.resize(120, 32)
+        btnDialog2.move(75, 360)
+        btnDialog2.resize(150, 32)
         btnDialog2.clicked.connect(self.dialog6_close2)
         # 버튼 추가
         btnDialog3 = QPushButton("지점별 분석 폴더보기", self.dialog6)
-        btnDialog3.move(10, 310)
-        btnDialog3.resize(120, 32)
+        btnDialog3.move(75, 400)
+        btnDialog3.resize(150, 32)
         btnDialog3.clicked.connect(self.dialog6_close3)
 
         # QDialog 세팅
         self.dialog6.setWindowTitle('분석 결과 열람')
         self.dialog6.setWindowModality(Qt.ApplicationModal)
-        self.dialog6.resize(300, 400)
+        self.dialog6.resize(300, 460)
         self.dialog6.show()
 
     def dialog6_close1(self):
-        path = './data/' + self.myexam + '/채점결과/' + self.myexam + ' 채점 결과 문항 분석'
+        path = './data/' + self.myexam + '/채점결과/' + self.myexam + ' 채점 결과 문항 분석.xlsx'
         File.open_file(path)
 
     def dialog6_close2(self):
-        path = './data/' + self.myexam + '/채점결과/' + self.myexam + ' 전체 학생 채점 결과'
+        path = './data/' + self.myexam + '/채점결과/' + self.myexam + ' 전체 학생 채점 결과.xlsx'
         File.open_file(path)
 
     def dialog6_close3(self):
         path = os.path.realpath('./data/' + self.myexam + '/채점결과/')
-        os.startfile(path)
+        File.open_file(path, type='directory')
 
 
     # 오류 창 띄우기
@@ -238,6 +243,11 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
+    if getattr(sys, 'frozen', False):
+        os.chdir(os.path.dirname(sys.executable))
+    else:
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
     mainWindow.show()

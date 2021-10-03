@@ -17,7 +17,7 @@ def create_folder(path, reference_name):
 def select_exam_folder():
     path = './data'
     mtime = lambda f: -os.stat(os.path.join(path, f)).st_mtime
-    sorted_exam_folders = list(sorted(os.listdir(path), key=mtime))
+    sorted_exam_folders = [dir for dir in sorted(os.listdir(path), key=mtime) if dir != '.DS_Store']
 
     for idx in range(len(sorted_exam_folders)):
         print(str(idx + 1) + '.', sorted_exam_folders[idx])
@@ -29,9 +29,14 @@ def select_exam_folder():
     return directory_path
 
 
-def open_file(path):
-    print(path)
+def open_file(path, type="excel"):
+
     if os.name == 'nt':
-        os.system(f'start excel "{path}"')
+        if type is not "excel":
+            os.startfile(path)
+        else:
+            os.system(f'start excel "{path}"')
+
+
     elif os.name == 'posix':
         os.system(f'open "{path}"')

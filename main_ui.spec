@@ -1,18 +1,19 @@
-# -*- mode: python ; coding: utf-8 -*-
+import os
 
+spec_root = os.path.abspath(SPECPATH)
 
 block_cipher = None
 
 
 a = Analysis(['main_ui.py'],
-             pathex=['C:\\Users\\송종빈\\Desktop\\grade_analysis-main\\grade_analysis-main'],
+             pathex=[spec_root],
              binaries=[],
              datas=[],
              hiddenimports=[],
              hookspath=[],
              hooksconfig={},
              runtime_hooks=[],
-             excludes=[],
+             excludes=['numpy', 'scipy'],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher,
@@ -26,7 +27,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,  
           [],
-          name='main_ui',
+          name='채점분석',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -37,4 +38,9 @@ exe = EXE(pyz,
           disable_windowed_traceback=False,
           target_arch=None,
           codesign_identity=None,
-          entitlements_file=None )
+          entitlements_file=None,
+          icon='./icon.ico')
+app = BUNDLE(exe,
+             name='main_ui.app',
+             icon=None,
+             bundle_identifier=None)
