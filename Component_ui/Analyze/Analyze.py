@@ -1,38 +1,30 @@
 import re
+import os
+
 from openpyxl import load_workbook
 
 from . import Student
 from . import Exam
 from . import Result
+from ..Error.Error import GetExamDataError, GetStudentsDataError
+
 
 # 모의고사 채점/분석 페이지
-
-
 # 모의고사의 정답 파일과 학생 제출 파일을 읽어 채점을 진행합니다. 이후, 결과 파일들을 생성합니다.
 def analyze_exam(exam):
     exam_folder = "./data/" + exam
     exam_data = get_exam_data_from_excel(exam_folder + f'/{exam} 정답 및 배점.xlsx')
-    if not exam_data:
-        return 3
     students = get_students(exam_folder + f'/{exam} 학생 제출 답.xlsx', *exam_data)
-    if not students:
-        return 4
 
     exam = Exam.Exam(exam_folder, students, *exam_data)
 
-    result = Result.create_result_files(exam_folder, exam)
-    if result == 6:
-        return 6
-    return 100
+    Result.create_result_files(exam_folder, exam)
 
 
 def get_exam_data_from_excel(exam_path):
-    exam_answers = exam_answers_from_excel(exam_path)
-    exam_scores = exam_scores_from_excel(exam_path)
-
-    if exam_answers and exam_scores:
-        return exam_answers, exam_scores
-    return False
+    if not os.path.exists(exam_path):
+        raise FileNotFoundError
+    return exam_answers_from_excel(exam_path), exam_scores_from_excel(exam_path)
 
 
 def exam_answers_from_excel(exam_path):
@@ -40,13 +32,13 @@ def exam_answers_from_excel(exam_path):
     next(values)
     answers = []
 
-    for value in values:
+    for problem_num, value in enumerate(values, start=1):
         if not value or not (type(value[1]) == int) or not (0 < value[1] <= 5):
-            return False
+            raise GetExamDataError(exam_path, f"{problem_num}번째 문항의 정답이 올바르지 않습니다!")
         answers.append(value[1])
 
     if len(answers) != 20:
-        return False
+        raise GetExamDataError(exam_path, f"문항 정답이 20개가 아닌 {len(answers)}개 제출되었습니다.")
     return answers
 
 
@@ -55,13 +47,13 @@ def exam_scores_from_excel(exam_path):
     next(values)
     scores = []
 
-    for value in values:
+    for problem_num, value in enumerate(values, start=1):
         if not value or not (type(value[2]) == int):
-            return False
+            raise GetExamDataError(exam_path, f"{problem_num}번째 문항의 배점이 올바르지 않습니다!")
         scores.append(value[2])
 
     if len(scores) != 20:
-        return False
+        raise GetExamDataError(exam_path, f"문항 배점이 20개가 아닌 {len(scores)}개 제출되었습니다.")
 
     return scores
 
@@ -71,21 +63,22 @@ def get_students(students_path, exam_answers, exam_scores):
     students = {}
     records = load_workbook(students_path, data_only=True)['제출답안'].values
     if not records:
-        return False
+        raise GetStudentsDataError(students_path, f"학생 제출 답안을 작성해 주세요!")
 
     next(records)
-    for name, branch, submission in records:
+    for record_id, (name, branch, submission) in enumerate(records, start=1):
         if is_valid_student_data(name, branch, submission):
             student = Student.Student(name, branch, submission, exam_answers, exam_scores)
             students[student.__hash__()] = student
         else:
-            return False
-
+            raise GetStudentsDataError(students_path, f"{record_id}번째 제출 답안 형식이 올바르지 않습니다.")
     return students
 
 
 def is_valid_student_data(name, branch, submission):
     if name and branch and submission:
-        if type(name) == str and type(branch) == str and type(submission) == str and re.compile('[0-9]{20}').match(submission):
+        if type(name) == str \
+                and type(branch) == str \
+                and type(submission) == str \
+                and re.compile('[0-9]{20}').match(submission):
             return True
-    return False

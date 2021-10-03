@@ -1,5 +1,9 @@
-from openpyxl import Workbook
 import os
+
+from openpyxl import Workbook
+
+from ..Error.Error import ExcelNotClosedError
+
 
 def create_worksheet(worksheet_name):
     wb = Workbook()
@@ -12,7 +16,7 @@ def save_excel_file(workbook, folder_path, file_name):
     excel_file_name = str(folder_path) + '/' + file_name + '.xlsx'
 
     if os.path.exists(str(folder_path) + '/~$' + file_name + '.xlsx'):
-        return 6
+        raise ExcelNotClosedError(file_name)
     workbook.save(excel_file_name)
     return excel_file_name
 

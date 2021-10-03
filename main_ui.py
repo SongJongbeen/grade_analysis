@@ -1,12 +1,15 @@
 import sys
 import os
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+
 from Component_ui.Register import Register
 from Component_ui.Analyze import Analyze
 from Component_ui.Show import Show
 from Component_ui.Util import File
+from Component_ui.Error.Error import *
 
 
 class MainWindow(QMainWindow):
@@ -33,6 +36,12 @@ class MainWindow(QMainWindow):
         self.button4.clicked.connect(self.dialog4_open)
         self.button4.setGeometry(100, 210, 200, 50)
 
+        # layout = QVBoxLayout()
+        # layout.addWidget(self.button1)
+        # layout.addWidget(self.button2)
+        #
+        #
+        # self.setLayout(layout)
         self.myexam = ''
 
         # QDialog 설정
@@ -125,15 +134,16 @@ class MainWindow(QMainWindow):
         text = self.dialog1.lineedit.text()
         if text == '':
             self.error_no_input()
-        else:
-            registered_exam = Register.register_exam(text)
-            if registered_exam == 1:
-                self.error_existing_folder()
-            elif registered_exam == 2:
-                self.error_folder_name()
-            else:
-                pass
-        self.dialog1.close()
+            return
+
+        try:
+            Register.register_exam(text)
+        except WrongFileNameError as wrong_file_name_error:
+            self.pop_error_message(wrong_file_name_error)
+        except FileExistsError:
+            self.error_existing_folder()
+        finally:
+            self.dialog1.close()
 
     # Dialog 닫기 이벤트
     def dialog2_close(self, item):
@@ -144,29 +154,37 @@ class MainWindow(QMainWindow):
     # Dialog 닫기 이벤트
     def dialog3_close(self, item):
         exam = item.text()
-        analyzed_exam = Analyze.analyze_exam(exam)
-        if analyzed_exam == 3:
-            self.error_not_register_exam()
-        elif analyzed_exam == 4:
-            self.error_not_register_student_submission()
-        elif analyzed_exam == 6:
-            self.error_close_excel()
-        elif analyzed_exam == 100:
+
+        try:
+            Analyze.analyze_exam(exam)
             self.dialog5 = QDialog()
             self.dialog5_open()
-        self.dialog3.close()
+        except GetExamDataError as get_exam_data_error:
+            self.pop_error_message(get_exam_data_error)
+        except GetStudentsDataError as get_students_data_error:
+            self.pop_error_message(get_students_data_error)
+        except ExcelNotClosedError as excel_not_closed_error:
+            self.pop_error_message(excel_not_closed_error)
+        except FileNotFoundError:
+            QMessageBox.warning(self, '채점 오류', '파일을 찾을 수 없습니다.')
 
+
+        finally:
+            self.dialog3.close()
 
     # Dialog 닫기 이벤트
     def dialog4_close(self, item):
         exam = item.text()
         showed_exam = Show.show_exam(exam)
-        if showed_exam == 5:
-            self.error_not_analyzed()
-        else:
+
+        try:
+            Show.show_exam(exam)
             self.dialog6 = QDialog()
             self.dialog6_open(exam, showed_exam)
-        self.dialog4.close()
+        except FileNotFoundError:
+            QMessageBox.warning(self, '분석 열람 오류', '해당 모의고사에 대한 채점을 먼저 진행해주세요.')
+        finally:
+            self.dialog4.close()
 
     def dialog5_open(self):
         QMessageBox.information(self, "채점이 완료되었습니다.", "채점이 완료되었습니다.")
@@ -218,28 +236,13 @@ class MainWindow(QMainWindow):
         path = os.path.realpath('./data/' + self.myexam + '/채점결과/')
         File.open_file(path, type='directory')
 
-
     # 오류 창 띄우기
+    def pop_error_message(self, error):
+        QMessageBox.warning(self, error.type, error.path + ': ' + error.message)
+
     def error_no_input(self):
         QMessageBox.warning(self, '모의고사 이름 오류', '모의고사 이름을 입력하지 않으셨습니다.')
 
-    def error_existing_folder(self):
-        QMessageBox.warning(self, '중복되는 모의고사', '이미 존재하는 모의고사입니다. 수정하시려면 data 폴더 > 정답 및 배점에서 수정해주세요.')
-
-    def error_folder_name(self):
-        QMessageBox.warning(self, '모의고사 이름 오류', '폴더명으로 쓸 수 있는 형식으로 입력해주세요.')
-
-    def error_not_register_exam(self):
-        QMessageBox.warning(self, '채점 오류', '시험지가 정상적으로 등록되어있는지 확인해주세요.\n다음의 원인이 있을 수 있습니다.\n1.문제의 개수(20개)\n2.배점의 개수(20개)')
-
-    def error_not_register_student_submission(self):
-        QMessageBox.warning(self, '채점 오류', '학생 제출 답안이 정상적으로 등록되어있는지 확인해주세요.\n다음의 원인이 있을 수 있습니다.\n1.학생이 없음\n2.잘못된 값이 들어감.')
-
-    def error_not_analyzed(self):
-        QMessageBox.warning(self, '분석 열람 오류', '해당 모의고사에 대한 채점을 먼저 진행해주세요.')
-
-    def error_close_excel(self):
-        QMessageBox.warning(self, '채점 오류', '열려 있는 모의고사를 닫고 진행해주세요.')
 
 
 if __name__ == '__main__':

@@ -1,14 +1,12 @@
 import os
 import json
 
-from ..Util.File import select_exam_folder
-
 
 def show_exam(exam):
     exam_dir = './data/' + exam
 
     if not os.path.exists(exam_dir + '/result.json'):
-        return 5
+        raise FileNotFoundError
 
     with open(exam_dir + '/result.json') as json_file:
         result = json.load(json_file)

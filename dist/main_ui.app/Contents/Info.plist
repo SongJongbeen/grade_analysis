@@ -5,7 +5,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>main_ui</string>
 	<key>CFBundleExecutable</key>
-	<string>채점분석</string>
+	<string>main_ui</string>
 	<key>CFBundleIconFile</key>
 	<string>icon-windowed.icns</string>
 	<key>CFBundleIdentifier</key>

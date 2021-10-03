@@ -1,1 +1,1 @@
-([('채점분석', '/Users/isanghun/grade_analysis/dist/채점분석', 'EXECUTABLE')],)
+([('main_ui', '/Users/isanghun/grade_analysis/dist/main_ui', 'EXECUTABLE')],)

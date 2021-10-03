@@ -6,16 +6,11 @@ from ..Util.Excel import worksheet_write, create_worksheet, save_excel_file
 
 # 모의고사 폴더를 생성 후, 문제 정답 및 배점 정보가 초기화된 엑셀 파일 하나를 생성합니다.
 def register_exam(text):
-    exam_folder = create_folder('./data', '모의고사', text)
-    if exam_folder == 1:
-        return 1
-    elif exam_folder == 2:
-        return 2
-    elif exam_folder:
-        exam_excel_path = exam_folder + f'{exam_folder.replace("./data", "")} 정답 및 배점.xlsx'
-        if not os.path.exists(exam_excel_path):
-            create_exam_excel(exam_folder)
-        open_file(exam_excel_path)
+    exam_folder = create_folder('./data', text)
+    exam_excel_path = exam_folder + f'{exam_folder.replace("./data", "")} 정답 및 배점.xlsx'
+    if not os.path.exists(exam_excel_path):
+        create_exam_excel(exam_folder)
+    open_file(exam_excel_path)
 
 
 def create_exam_excel(path):
