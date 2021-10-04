@@ -41,7 +41,7 @@ class WrongFileNameError(Error):
         super(WrongFileNameError, self).__init__(
             path=path,
             type="잘못된 파일명 오료",
-            message="잘못된 이름을 입력하였습니다.($, % 등 특수 문자 사용 불가)"
+            message="잘못된 이름을 입력하였습니다.(\\ , / 의 문자가 파일 명에 들어감)"
         )
 
 

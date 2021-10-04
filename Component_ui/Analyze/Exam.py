@@ -21,6 +21,7 @@ class Exam:
         self.set_student_ranks()
         self.set_student_grades()
         self.set_branches()
+        self.set_student_ranks_with_same_score()
 
     # 학생 수 받아오기
     def set_students_number(self):
@@ -30,28 +31,31 @@ class Exam:
     def set_students_total_score(self):
         self.students_total_score = sum([student.score for student in self.students.values()])
 
+    def set_sort_students_by_score(self):
+        self.sorted_students_by_score = sorted(self.students.values(), key=lambda student: -student.score)
+
     # 등급 커트라인에 해당하는 점수 set.
     def set_grade_cut_lines(self):
         for proportion in self.grade_cut_lines_proportion:
             student_rank = int(self.students_number * proportion)
             self.grade_cut_line_scores.append(self.sorted_students_by_score[student_rank].score)
 
-    def set_sort_students_by_score(self):
-        self.sorted_students_by_score = sorted(self.students.values(), key=lambda student: -student.score)
-
     def set_student_ranks(self):
-        # if not self.sorted_students_by_score:
-        #     print("학생들이 정렬되지 않았습니다!")
-
         for rank, student in enumerate(self.sorted_students_by_score):
             self.students[student.__hash__()].rank = rank + 1
 
+    def set_student_ranks_with_same_score(self):
+        for idx in range(len(self.sorted_students_by_score) - 1):
+            if self.sorted_students_by_score[idx].score == self.sorted_students_by_score[idx + 1].score:
+                self.students[self.sorted_students_by_score[idx + 1].__hash__()].rank \
+                    = self.students[self.sorted_students_by_score[idx].__hash__()].rank
+
     def set_student_grades(self):
-        proportion_idx = 0
-        for student in self.sorted_students_by_score:
-            self.students[student.__hash__()].grade = proportion_idx + 1
-            if student.score < self.grade_cut_line_scores[proportion_idx]:
-                proportion_idx += 1
+        for student in self.students.values():
+            for proportion_idx in range(1, 8):
+                if student.score >= self.grade_cut_line_scores[proportion_idx - 1]:
+                    self.students[student.__hash__()].grade = proportion_idx
+                    break
 
     def set_branches(self):
         for student_id, student_info in self.students.items():

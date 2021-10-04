@@ -7,10 +7,11 @@ def create_folder(path, text):
     folder_name = path + '/' + text
     if os.path.exists(folder_name):
         raise FileExistsError(text)
-    try:
-        os.mkdir(folder_name)
-    except:
+    if '/' in text or '\\' in text:
         raise WrongFileNameError(text)
+
+    os.mkdir(folder_name)
+
     return folder_name
 
 
