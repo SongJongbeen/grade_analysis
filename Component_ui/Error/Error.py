@@ -1,15 +1,21 @@
 import os
 
 
-# Analyze 컴포넌트의 에러
-class GetDataError(Exception):
-    def __init__(self, path, message):
-        self.path = os.path.basename(path).replace('.xlsx', '')
+class Error(Exception):
+    def __init__(self, path='', type='', message=''):
+        self.path = path
         self.message = message
-        self.type = "채점 오류"
+        self.type = type
 
-    def __str__(self):
-        return self.message
+
+# Analyze 컴포넌트의 에러
+class GetDataError(Error):
+    def __init__(self, path, message):
+        super(GetDataError, self).__init__(
+            path=os.path.basename(path).replace('.xlsx', ''),
+            type="채점 오류",
+            message=message
+        )
 
 
 class GetExamDataError(GetDataError):
@@ -21,18 +27,37 @@ class GetStudentsDataError(GetDataError):
 
 
 # Util 컴포넌트의 에러
-class ExcelNotClosedError(Exception):
+class ExcelNotClosedError(Error):
     def __init__(self, path):
-        self.path = path
-        self.message = "열려 있는 모의고사를 닫아 주세요."
-        self.type = "채점 오류"
+        super(ExcelNotClosedError, self).__init__(
+            path=path,
+            type="채점오류",
+            message="열려 있는 파일을 닫아 주세요."
+        )
 
-    def __str__(self):
-        return self.message
 
-
-class WrongFileNameError(Exception):
+class WrongFileNameError(Error):
     def __init__(self, path):
-        self.path = path
-        self.type = "잘못된 파일명"
-        self.message = "잘못된 이름을 입력하였습니다.($, % 등 특수 문자 사용 불가)"
+        super(WrongFileNameError, self).__init__(
+            path=path,
+            type="잘못된 파일명 오료",
+            message="잘못된 이름을 입력하였습니다.($, % 등 특수 문자 사용 불가)"
+        )
+
+
+class FileExistsError(Error):
+    def __init__(self, path):
+        super(FileExistsError, self).__init__(
+            path=path,
+            type="파일 존재 오류",
+            message="해당 파일이 이미 존재합니다."
+        )
+
+
+class NotScoredError(Error):
+    def __init__(self):
+        super(NotScoredError, self).__init__(
+            path='',
+            type='분석 열람 오류',
+            message="채점을 먼저 진행해 주세요!"
+        )

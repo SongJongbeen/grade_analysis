@@ -15,33 +15,57 @@ from Component_ui.Error.Error import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setMainUI()
+
+
+    def setMainUI(self):
         # 윈도우 설정
-        self.setGeometry(300, 300, 400, 300)  # x, y, w, h
+        self.setGeometry(300, 300, 290, 300)  # x, y, w, h
         self.setWindowTitle('손고운 사회문화 채점 분석 통합 시스템')
+
+        button_style = "padding: 10px 0;" \
+                       + "border-radius: 10%;" \
+                       + "background-color: white;" \
+                       + "border: 1px solid #D8D8D8;" \
+                       + "border-bottom: 1px solid #BDBDBD;"
+
+        widget = QWidget()
+        v_layout = QVBoxLayout()
+        h_layout = QHBoxLayout()
 
         # QButton 위젯 생성
         self.button1 = QPushButton('시험지 등록', self)
         self.button1.clicked.connect(self.dialog1_open)
-        self.button1.setGeometry(100, 30, 200, 50)
+        self.button1.setStyleSheet(button_style)
 
         self.button2 = QPushButton('제출 답안 등록', self)
         self.button2.clicked.connect(self.dialog2_open)
-        self.button2.setGeometry(100, 90, 200, 50)
+        self.button2.setStyleSheet(button_style)
 
         self.button3 = QPushButton('채점', self)
         self.button3.clicked.connect(self.dialog3_open)
-        self.button3.setGeometry(100, 150, 200, 50)
+        self.button3.setStyleSheet(button_style)
 
         self.button4 = QPushButton('채점 및 분석 결과 열람', self)
         self.button4.clicked.connect(self.dialog4_open)
-        self.button4.setGeometry(100, 210, 200, 50)
+        self.button4.setStyleSheet(button_style)
 
-        # layout = QVBoxLayout()
-        # layout.addWidget(self.button1)
-        # layout.addWidget(self.button2)
+        v_layout.addStretch(5)
+        v_layout.addWidget(self.button1, 2)
+        v_layout.addStretch(1)
+        v_layout.addWidget(self.button2, 2)
+        v_layout.addStretch(1)
+        v_layout.addWidget(self.button3, 2)
+        v_layout.addStretch(1)
+        v_layout.addWidget(self.button4, 2)
+        v_layout.addStretch(5)
+
+        h_layout.addStretch(1)
+        h_layout.addLayout(v_layout, 4)
+        h_layout.addStretch(1)
         #
-        #
-        # self.setLayout(layout)
+        widget.setLayout(h_layout)
+        self.setCentralWidget(widget)
         self.myexam = ''
 
         # QDialog 설정
@@ -140,8 +164,8 @@ class MainWindow(QMainWindow):
             Register.register_exam(text)
         except WrongFileNameError as wrong_file_name_error:
             self.pop_error_message(wrong_file_name_error)
-        except FileExistsError:
-            self.error_existing_folder()
+        except FileExistsError as file_exists_error:
+            self.pop_error_message(file_exists_error)
         finally:
             self.dialog1.close()
 
@@ -165,9 +189,8 @@ class MainWindow(QMainWindow):
             self.pop_error_message(get_students_data_error)
         except ExcelNotClosedError as excel_not_closed_error:
             self.pop_error_message(excel_not_closed_error)
-        except FileNotFoundError:
-            QMessageBox.warning(self, '채점 오류', '파일을 찾을 수 없습니다.')
-
+        except GetDataError as get_data_error:
+            self.pop_error_message(get_data_error)
 
         finally:
             self.dialog3.close()
@@ -175,14 +198,13 @@ class MainWindow(QMainWindow):
     # Dialog 닫기 이벤트
     def dialog4_close(self, item):
         exam = item.text()
-        showed_exam = Show.show_exam(exam)
-
         try:
-            Show.show_exam(exam)
+            showed_exam = Show.show_exam(exam)
             self.dialog6 = QDialog()
             self.dialog6_open(exam, showed_exam)
-        except FileNotFoundError:
-            QMessageBox.warning(self, '분석 열람 오류', '해당 모의고사에 대한 채점을 먼저 진행해주세요.')
+        except NotScoredError as not_scored_error:
+            not_scored_error.path = exam
+            self.pop_error_message(not_scored_error)
         finally:
             self.dialog4.close()
 
@@ -242,7 +264,6 @@ class MainWindow(QMainWindow):
 
     def error_no_input(self):
         QMessageBox.warning(self, '모의고사 이름 오류', '모의고사 이름을 입력하지 않으셨습니다.')
-
 
 
 if __name__ == '__main__':

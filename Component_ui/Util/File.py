@@ -1,11 +1,12 @@
 import os
 
-from ..Error.Error import WrongFileNameError
+from ..Error.Error import WrongFileNameError, FileExistsError
+
 
 def create_folder(path, text):
     folder_name = path + '/' + text
     if os.path.exists(folder_name):
-        raise FileExistsError
+        raise FileExistsError(text)
     try:
         os.mkdir(folder_name)
     except:

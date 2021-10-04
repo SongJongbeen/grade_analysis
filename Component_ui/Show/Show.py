@@ -1,12 +1,13 @@
 import os
 import json
 
+from ..Error.Error import NotScoredError
 
 def show_exam(exam):
     exam_dir = './data/' + exam
 
     if not os.path.exists(exam_dir + '/result.json'):
-        raise FileNotFoundError
+        raise NotScoredError
 
     with open(exam_dir + '/result.json') as json_file:
         result = json.load(json_file)

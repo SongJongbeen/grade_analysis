@@ -6,7 +6,7 @@ from openpyxl import load_workbook
 from . import Student
 from . import Exam
 from . import Result
-from ..Error.Error import GetExamDataError, GetStudentsDataError
+from ..Error.Error import GetExamDataError, GetStudentsDataError, GetDataError
 
 
 # 모의고사 채점/분석 페이지
@@ -23,7 +23,7 @@ def analyze_exam(exam):
 
 def get_exam_data_from_excel(exam_path):
     if not os.path.exists(exam_path):
-        raise FileNotFoundError
+        raise GetDataError(exam_path, "해당 파일이 존재하지 않습니다!")
     return exam_answers_from_excel(exam_path), exam_scores_from_excel(exam_path)
 
 
@@ -60,6 +60,9 @@ def exam_scores_from_excel(exam_path):
 
 # 학생 객체를 담은 학생들 배열을 반환합니다.
 def get_students(students_path, exam_answers, exam_scores):
+    if not os.path.exists(students_path):
+        raise GetDataError(students_path, "해당 파일이 존재하지 않습니다!")
+
     students = {}
     records = load_workbook(students_path, data_only=True)['제출답안'].values
     if not records:
