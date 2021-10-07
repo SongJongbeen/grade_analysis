@@ -22,13 +22,6 @@ def select_exam_folder():
     return sorted_exam_folders
 
 
-def open_file(path, type="excel"):
-
-    if os.name == 'nt':
-        if type is 'directory':
-            os.startfile(path)
-        elif type is 'excel':
-            os.system(f'start excel "{path}"')
-
-    elif os.name == 'posix':
+def open_file(path):
+    if os.name == 'posix':
         os.system(f'open "{path}"')

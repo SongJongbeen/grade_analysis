@@ -37,7 +37,7 @@ class Exam:
     # 등급 커트라인에 해당하는 점수 set.
     def set_grade_cut_lines(self):
         for proportion in self.grade_cut_lines_proportion:
-            student_rank = int(self.students_number * proportion)
+            student_rank = int((self.students_number - 1) * proportion)
             self.grade_cut_line_scores.append(self.sorted_students_by_score[student_rank].score)
 
     def set_student_ranks(self):
@@ -52,10 +52,13 @@ class Exam:
 
     def set_student_grades(self):
         for student in self.students.values():
-            for proportion_idx in range(1, 8):
-                if student.score >= self.grade_cut_line_scores[proportion_idx - 1]:
-                    self.students[student.__hash__()].grade = proportion_idx
+            for proportion_idx in range(0, 8):
+                if student.score >= self.grade_cut_line_scores[proportion_idx]:
+                    self.students[student.__hash__()].grade = proportion_idx + 1
                     break
+                elif proportion_idx == 7:
+                    self.students[student.__hash__()].grade = 9
+
 
     def set_branches(self):
         for student_id, student_info in self.students.items():
