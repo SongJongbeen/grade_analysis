@@ -300,13 +300,11 @@ class MainWindow(QMainWindow):
         self.dialog8.show()
 
     def dialog8_close1(self):
-        # Print.PrintExamInfo(self.myexam)
-        print('done')
+        Print.PrintExamInfo(self.myexam)
         self.dialog8.close()
 
     def dialog8_close2(self):
-        # Print.PrintStudentInfo(self.myexam)
-        print('done')
+        Print.PrintStudentInfo(self.myexam)
         self.dialog8.close()
 
     def dialog9_open(self):
@@ -314,7 +312,7 @@ class MainWindow(QMainWindow):
         # 지점 고르기
         vbox = QVBoxLayout(self)
         listWidget = QListWidget()
-        item_list = File.select_branch_foler()
+        item_list = File.select_branch_foler(self.myexam)
         listWidget.clear()
         for i in item_list:
             listWidget.addItem(i)
@@ -332,8 +330,8 @@ class MainWindow(QMainWindow):
         self.dialog8.close()
 
     def dialog9_close(self, item):
-        # print(item)
-        print('closed')
+        Print.PrintBranchInfo(self.myexam, item)
+        self.dialog9.close()
 
 
     # 오류 창 띄우기
