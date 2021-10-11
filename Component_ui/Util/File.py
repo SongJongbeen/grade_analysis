@@ -25,8 +25,8 @@ def select_branch_foler(exam_name):
     path = './data/' + exam_name + '/채점결과'
     mtime = lambda f: -os.stat(os.path.join(path, f)).st_mtime
     sorted_branch_folders = [dir for dir in sorted(os.listdir(path), key=mtime) if dir != '.DS_Store']
-    # sorted_branch_folders.remove(exam_name + ' 전체 학생 채점 결과.xlsx')
-    # sorted_branch_folders.remove(exam_name + ' 채점 결과 문항 분석.xlsx')
+    sorted_branch_folders.remove(exam_name + ' 전체 학생 채점 결과.xlsx')
+    sorted_branch_folders.remove(exam_name + ' 채점 결과 문항 분석.xlsx')
     return sorted_branch_folders
 
 def open_file(path, type='excel'):

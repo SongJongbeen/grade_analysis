@@ -26,7 +26,7 @@ def create_exam_excel(path):
 # 모의고사 폴더를 선택하여 학생들의 제출 답안 엑셀 파일을 생성하고, 파일을 엽니다.
 def register_students_submission(exam_name):
     exam_folder = "./data/" + exam_name
-    submission_file = exam_folder + f'{exam_name} 학생 제출 답.xlsx'
+    submission_file = exam_folder + f'/{exam_name} 학생 제출 답.xlsx'
     if not os.path.exists(submission_file):
         create_students_submission_excel(exam_folder)
     open_file(submission_file)

@@ -327,12 +327,12 @@ class MainWindow(QMainWindow):
         self.dialog9.setWindowModality(Qt.ApplicationModal)
         self.dialog9.setGeometry(300, 300, 350, 250)
         self.dialog9.show()
-        self.dialog8.close()
 
     def dialog9_close(self, item):
-        Print.PrintBranchInfo(self.myexam, item)
+        branch_name = item.text()
+        Print.PrintBranchInfo(self.myexam, branch_name)
         self.dialog9.close()
-
+        self.dialog8.close()
 
     # 오류 창 띄우기
     def pop_error_message(self, error):
